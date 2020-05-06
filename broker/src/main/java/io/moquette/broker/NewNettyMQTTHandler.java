@@ -55,6 +55,7 @@ public class NewNettyMQTTHandler extends ChannelInboundHandlerAdapter {
         MqttMessage msg = NettyUtils.validateMessage(message);
         final MQTTConnection mqttConnection = mqttConnection(ctx.channel());
         try {
+        	
             mqttConnection.handleMessage(msg);
         } catch (Throwable ex) {
             //ctx.fireExceptionCaught(ex);

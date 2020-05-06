@@ -61,8 +61,14 @@ final class MQTTConnection {
     }
 
     void handleMessage(MqttMessage msg) {
+    	if(msg.fixedHeader()==null || msg.fixedHeader().messageType()==null)
+    		return;
         MqttMessageType messageType = msg.fixedHeader().messageType();
         LOG.debug("Received MQTT message, type: {}, channel: {}", messageType, channel);
+//        MqttConnectPayload payload = ((MqttConnectMessage)msg).payload();
+//        String clientId = payload.clientIdentifier();
+//       
+//        System.out.println("clientId"+clientId);
         switch (messageType) {
             case CONNECT:
                 processConnect((MqttConnectMessage) msg);
@@ -130,6 +136,7 @@ final class MQTTConnection {
         MqttConnectPayload payload = msg.payload();
         String clientId = payload.clientIdentifier();
         final String username = payload.userName();
+        //System.out.println(clientId);
         LOG.trace("Processing CONNECT message. CId={} username: {} channel: {}", clientId, username, channel);
 
         if (isNotProtocolVersion(msg, MqttVersion.MQTT_3_1) && isNotProtocolVersion(msg, MqttVersion.MQTT_3_1_1)) {
@@ -333,6 +340,10 @@ final class MQTTConnection {
     }
 
     void processPublish(MqttPublishMessage msg) {
+    	
+    	if(msg.variableHeader().packetId()==0)
+    		return;
+    	
         final MqttQoS qos = msg.fixedHeader().qosLevel();
         final String username = NettyUtils.userName(channel);
         final String topicName = msg.variableHeader().topicName();
